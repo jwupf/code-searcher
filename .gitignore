@@ -10,4 +10,7 @@ gen/
 
 # Packages
 packages/
-/CodeSearcher.Interfaces/IResultExporter.cs
+CodeSearcher.Interfaces/IResultExporter.cs
+
+# temp test files
+.code-searcher/

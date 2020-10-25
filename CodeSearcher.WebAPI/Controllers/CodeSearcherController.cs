@@ -322,7 +322,7 @@ namespace CodeSearcher.WebAPI.Controllers
         [HttpPost("search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<SearchIndexResponse> SearchExistingIndex(SearchIndexRequest model)
+        public ActionResult<IDetailedSearchResult[]> SearchExistingIndex(SearchIndexRequest model)
         {
             m_Logger.Info($"[GET] {APIRoutes.SearchInIndexRoute}");
 
@@ -340,10 +340,7 @@ namespace CodeSearcher.WebAPI.Controllers
             m_Logger.Info($"looking in index {model.IndexID} for {model.SearchWord}");
             var searchResults = m_Manager.SearchInIndex(model.IndexID, model.SearchWord);
 
-            return new SearchIndexResponse
-            {
-                Results = searchResults.ToArray()
-            };
+            return searchResults.ToArray();
         }
 
         // status: JobStorage.Current.GetMonitoringApi().SucceededJobs()[0].Value.Result
