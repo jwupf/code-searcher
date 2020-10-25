@@ -32,6 +32,35 @@ interface SearchResult {
 let selectedSearchIndex: number = 0;
 let listOfSearchResults: SearchResult[];
 
+function activateSelectIndex(context: vscode.ExtensionContext) {
+	console.log('Adding search command for "codesearcher-vscodeplugin"');
+	listOfSearchResults = [];
+	
+	let searchDisposable = vscode.commands.registerCommand('codesearcher-vscodeplugin.selectIndex', async () => {
+
+		let rest: rm.RestClient = new rm.RestClient('codeSearcher-vs-plugin', 'http://127.0.0.1:5000');
+
+		const codeSearcher: rm.IRestResponse<Index[]> = await rest.get<Index[]>('/api/CodeSearcher/indexList');
+		if(codeSearcher.statusCode == 200) {
+			const indexList = codeSearcher.result ?? [];
+			var entries:Array<string>=[];
+			indexList.forEach((entry)=>{
+				entries.push(`${entry.id}::${entry.sourcePath}`)
+			})
+			
+			const selectedItem = await vscode.window.showQuickPick(entries);	
+			if(selectedItem){
+				const index = entries.indexOf(selectedItem);
+				vscode.window.showInformationMessage(`Choosen index: (${indexList[index].id}) - [${indexList[index].fileExtensions}] - ${indexList[index].sourcePath}`);
+				selectedSearchIndex = indexList[index].id;
+			}
+		}
+		
+	});
+
+	context.subscriptions.push(searchDisposable);
+}
+
 function activateSearch(context: vscode.ExtensionContext) {
 	console.log('Adding search command for "codesearcher-vscodeplugin"');
 	listOfSearchResults = [];
@@ -44,9 +73,6 @@ function activateSearch(context: vscode.ExtensionContext) {
 		{
 			const codeSearcher: rm.IRestResponse<Index[]> = await rest.get<Index[]>('/api/CodeSearcher/indexList');
 			if(codeSearcher.statusCode == 200) {
-				codeSearcher.result?.forEach((entry)=>{
-					vscode.window.showInformationMessage(`${entry.id}::${entry.sourcePath}`);
-				})
 				const indexList = codeSearcher.result ?? [];
 				var entries:Array<string>=[];
 				indexList.forEach((entry)=>{
@@ -56,7 +82,7 @@ function activateSearch(context: vscode.ExtensionContext) {
 				const selectedItem = await vscode.window.showQuickPick(entries);	
 				if(selectedItem){
 					const index = entries.indexOf(selectedItem);
-					vscode.window.showInformationMessage(`Choosen index: ${index}`);
+					vscode.window.showInformationMessage(`Choosen index: (${indexList[index].id}) - [${indexList[index].fileExtensions}] - ${indexList[index].sourcePath}`);
 					selectedSearchIndex = indexList[index].id;
 				}
 			}
@@ -92,6 +118,7 @@ export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "codesearcher-vscodeplugin" is now active!');
 
 	activateSearch(context);
+	activateSelectIndex(context);
 }
 
 // this method is called when your extension is deactivated

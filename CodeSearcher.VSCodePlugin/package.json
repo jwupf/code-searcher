@@ -10,11 +10,17 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:codesearcher-vscodeplugin.selectIndex",
     "onCommand:codesearcher-vscodeplugin.search"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
+      
+      {
+        "command": "codesearcher-vscodeplugin.selectIndex",
+        "title": "CodeSearcher: Select search index"
+      },
       {
         "command": "codesearcher-vscodeplugin.search",
         "title": "CodeSearcher: Search"
